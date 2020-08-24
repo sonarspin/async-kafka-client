@@ -1,5 +1,5 @@
 package com.thiefspin.kafka.client.producer
 
-trait SimpleKafkaProducer {
+trait KafkaProducerType {
   def produce(topic: String, msg: String)
 }

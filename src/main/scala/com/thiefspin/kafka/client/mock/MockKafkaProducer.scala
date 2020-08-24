@@ -1,9 +1,9 @@
 package com.thiefspin.kafka.client.mock
 
-import com.thiefspin.kafka.client.producer.SimpleKafkaProducer
+import com.thiefspin.kafka.client.producer.KafkaProducerType
 
 class MockKafkaProducer(f: (String, String) => Unit) {
-  val simpleKafkaProducer = new SimpleKafkaProducer {
+  val mockProducer = new KafkaProducerType {
     override def produce(topic: String, msg: String): Unit = {
       f(topic, msg)
     }

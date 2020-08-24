@@ -2,20 +2,23 @@ package com.thiefspin.kafka.client.producer.impl
 
 import java.util.Properties
 
-import com.thiefspin.kafka.client.producer.SimpleKafkaProducer
+import com.thiefspin.kafka.client.producer.KafkaProducerType
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerRecord, RecordMetadata}
 
-class ApacheKafkaProducer(props: Option[Properties], servers: Option[String]) {
-  lazy val producer: KafkaProducer[String, String] = props match {
+class ApacheKafkaProducer(props: Option[Properties], servers: Option[String], callback: ApacheProducerCallbackParams => Unit) {
+  private lazy val apacheProducer: KafkaProducer[String, String] = props match {
     case Some(p) => new KafkaProducer[String, String](p)
-    case None => new KafkaProducer[String, String](defaultProps(servers.getOrElse("")))
+    case None => new KafkaProducer[String, String](defaultProps(servers.getOrElse("localhost:9092")))
   }
 
-  val simpleKafkaProducer = new SimpleKafkaProducer {
+  val producer = new KafkaProducerType {
     override def produce(topic: String, msg: String): Unit = {
-      producer.send(new ProducerRecord[String, String](topic, msg), new Callback {
+      apacheProducer.send(new ProducerRecord[String, String](topic, msg), new Callback {
         override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
-          println("completed")
+          callback {
+            ApacheProducerCallbackParams(topic, msg, metadata, exception)
+          }
         }
       })
     }
@@ -33,9 +36,18 @@ class ApacheKafkaProducer(props: Option[Properties], servers: Option[String]) {
   }
 }
 
-object ApacheKafkaProducer {
+object ApacheKafkaProducer extends LazyLogging {
 
-  def apply(props: Option[Properties], servers: Option[String]): ApacheKafkaProducer = {
-    new ApacheKafkaProducer(props, servers)
+  def apply(props: Option[Properties], servers: Option[String])(callback: Option[ApacheProducerCallbackParams => Unit]): ApacheKafkaProducer = {
+    new ApacheKafkaProducer(props, servers, callback.getOrElse(defaultCallback))
+  }
+
+  private def defaultCallback(callBackParams: ApacheProducerCallbackParams): Unit = {
+    if (callBackParams.exception != null) {
+      logger.error(s"Could not produce Kafka message: ${callBackParams.msg} to topic: ${callBackParams.topic}. \n" +
+        s"Exception: ${callBackParams.exception.getMessage}")
+    } else {
+      logger.info(s"Kafka message sent: ${callBackParams.msg} to topic: ${callBackParams.topic}. Record meta data: ${callBackParams.recordMetadata.toString}")
+    }
   }
 }
