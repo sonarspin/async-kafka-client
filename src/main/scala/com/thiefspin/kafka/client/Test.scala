@@ -1,10 +1,19 @@
 package com.thiefspin.kafka.client
 
+import java.util.UUID
+
 import akka.actor.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
+import akka.kafka.ConsumerSettings
+import com.thiefspin.kafka.client.consumer.{ConsumerTransformer, StringTransformer}
+import com.thiefspin.kafka.client.consumer.impl.AkkaStreamKafkaConsumer
 import com.thiefspin.kafka.client.json.JsonFormatter
 import com.thiefspin.kafka.client.mock.MockKafkaProducer
-import com.thiefspin.kafka.client.producer.KafkaProducerClient
+import com.thiefspin.kafka.client.producer.{KafkaProducerClient, SimpleKafkaProducerClient}
+import com.thiefspin.kafka.client.producer.impl.ApacheKafkaProducer
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.common.serialization.StringDeserializer
+import play.api.libs.json.{Json, OFormat}
 
 object Test extends App {
 
@@ -16,20 +25,44 @@ object Test extends App {
     println(msg)
   }
 
-  val client = KafkaProducerClient(producerClient.mockProducer, typedSystem)
+  val realP = ApacheKafkaProducer(None, Option("192.168.100.29:9092"))(None)
+
+  //  val client = KafkaProducerClient(producerClient.mockProducer, typedSystem)
+
+  val client = AsyncKafkaClient(typedSystem)
+
+  val producer = client.producerInstance("192.168.100.29:9092")
+
+  val consumerSettings = ConsumerSettings(system, new StringDeserializer, new StringDeserializer)
+    .withBootstrapServers("192.168.100.29:9092")
+    .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+    .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
+    .withProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000")
+    .withClientId(UUID.randomUUID().toString)
+    .withGroupId("test-group")
+
+  val transformer = StringTransformer { msg =>
+    println(msg)
+  }
+
+  val consumer = AkkaStreamKafkaConsumer(consumerSettings)(typedSystem)
 
   case class User(name: String)
 
-  implicit val format = new JsonFormatter[User] {
-    override def toJsonString(entity: User): String = entity.name
-  }
+  //implicit val uFormat: OFormat[User] = Json.format[User]
 
-//  client.produce("topic1", User("jannie"), producer.simpleKafkaProducer)
-//  client.produce("topic2", User("piter"), producer.simpleKafkaProducer)
-//  client.produce("topic3", User("frikkie"), producer.simpleKafkaProducer)
+  val topic = "test-topic"
 
-  client.produce("topic1", User("jannie"))
-  client.produce("topic2", User("piter"))
-  client.produce("topic3", User("frikkie"))
+  //  implicit val format = new JsonFormatter[User] {
+  //    override def toJsonString(entity: User): String = Json.toJson(entity).toString
+  //
+  //    override def fromJsonString(json: String): Option[User] = Json.parse(json).validate[User].asOpt
+  //  }
+
+  client.consume(topic, consumer.consumer)(transformer)
+
+  //  producer.produce(topic, User("jannie"))
+  //  producer.produce(topic, User("pieter"))
+  //  producer.produce(topic, User("frikkie"))
 
 }

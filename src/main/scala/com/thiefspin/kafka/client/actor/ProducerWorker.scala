@@ -1,14 +1,14 @@
 package com.thiefspin.kafka.client.actor
 
-import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
-import com.thiefspin.kafka.client.message.{Produce, ProduceToTopic, ProducerWorkerMessage}
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
+import com.thiefspin.kafka.client.message.{ProduceToTopic, ProducerWorkerMessage}
 
-class ProducerWorker(context: ActorContext[ProducerWorkerMessage]) extends AbstractBehavior[ProducerWorkerMessage](context) {
+class ProducerWorker(context: ActorContext[ProducerWorkerMessage]) extends DefaultBehavior(context) {
 
-  override def onMessage(msg: ProducerWorkerMessage): Behavior[ProducerWorkerMessage] = {
-    msg match {
-      case ProduceToTopic(topic, msg, simpleKafkaProducer) => simpleKafkaProducer.produce(topic, msg)
+  override def onMessage(behavior: ProducerWorkerMessage): Behavior[ProducerWorkerMessage] = {
+    behavior match {
+      case ProduceToTopic(topic, msg, producer) => producer.produce(topic, msg)
     }
     Behaviors.same
   }
@@ -19,9 +19,14 @@ object ProducerWorker {
   val IDENTIFIER: String = "kafka_producer_worker"
 
   def apply[A](context: ActorContext[A]): ActorRef[ProducerWorkerMessage] = {
-    context.spawn[ProducerWorkerMessage](
-      Behaviors.setup(ctx => new ProducerWorker(ctx)),
-      IDENTIFIER
+    val actor = context.spawn[ProducerWorkerMessage](
+      Behaviors.supervise {
+        Behaviors.setup[ProducerWorkerMessage] { ctx =>
+          new ProducerWorker(ctx)
+        }
+      }.onFailure(SupervisorStrategy.resume), IDENTIFIER
     )
+    context.watch(actor)
+    actor
   }
 }

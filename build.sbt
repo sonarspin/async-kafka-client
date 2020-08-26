@@ -8,7 +8,7 @@ ThisBuild / organizationName := "thiefspin"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "simple-kafka-client",
+    name := "async-kafka-client",
     libraryDependencies ++=
       akkaDependencies ++
         jsonDependencies ++

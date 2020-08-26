@@ -18,11 +18,15 @@ class KafkaProducerClient(producerType: KafkaProducerType, ref: ActorRef[WorkerS
 
 object KafkaProducerClient {
 
-  def apply[B](producerType: KafkaProducerType, system: ActorSystem[B]): KafkaProducerClient = {
-    new KafkaProducerClient(producerType, WorkerSupervisor(system))
+  def apply[B](producerType: KafkaProducerType, ref: ActorRef[WorkerSupervisorMessage]): KafkaProducerClient = {
+    new KafkaProducerClient(producerType, ref)
   }
 
-  def apply[B](producerType: KafkaProducerType, context: ActorContext[B]): KafkaProducerClient = {
-    new KafkaProducerClient(producerType, WorkerSupervisor(context))
-  }
+//  def apply[B](producerType: KafkaProducerType, system: ActorSystem[B]): KafkaProducerClient = {
+//    new KafkaProducerClient(producerType, WorkerSupervisor(system))
+//  }
+//
+//  def apply[B](producerType: KafkaProducerType, context: ActorContext[B]): KafkaProducerClient = {
+//    new KafkaProducerClient(producerType, WorkerSupervisor(context))
+//  }
 }

@@ -1,22 +1,27 @@
 package com.thiefspin.kafka.client.actor
 
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
-import akka.actor.typed.scaladsl.AbstractBehavior
-import akka.actor.typed.scaladsl.ActorContext
-import akka.actor.typed.scaladsl.Behaviors
-import com.thiefspin.kafka.client.message.{Consume, Produce, ProduceToTopic, ProducerWorkerMessage, WorkerSupervisorMessage}
+import com.thiefspin.kafka.client.consumer.{ConsumerTransformer, KafkaConsumerType}
+import com.thiefspin.kafka.client.message._
 
-class WorkerSupervisor(context: ActorContext[WorkerSupervisorMessage]) extends AbstractBehavior[WorkerSupervisorMessage](context) {
+class WorkerSupervisor(context: ActorContext[WorkerSupervisorMessage]) extends DefaultBehavior(context) {
 
   private val producerWorker: ActorRef[ProducerWorkerMessage] = ProducerWorker(context)
 
+  private def consumerWorker(topic: String, consumer: KafkaConsumerType, transformer: ConsumerTransformer): ActorRef[ConsumerWorkerMessage] = ConsumerWorker(topic, consumer, transformer, context)
+
   override def onMessage(msg: WorkerSupervisorMessage): Behavior[WorkerSupervisorMessage] = {
     msg match {
-      case Produce(topic, msg, producer) => producerWorker ! ProduceToTopic(topic, msg, producer)
-      case Consume() =>
+      case Produce(topic, msg, producer) =>
+        context.log.info(s"Supervisor received message Produce($topic, $msg, $producer)")
+        producerWorker ! ProduceToTopic(topic, msg, producer)
+      case Consume(topic, consumer, transformer) =>
+        consumerWorker(topic, consumer, transformer) ! ConsumeFromTopic()
     }
     Behaviors.same
   }
+
 }
 
 object WorkerSupervisor {
