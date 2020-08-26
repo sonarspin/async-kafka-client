@@ -1,9 +1,8 @@
 package com.thiefspin.kafka.client
 
-import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.actor.typed.scaladsl.ActorContext
+import akka.actor.typed.{ActorRef, ActorSystem}
 import com.thiefspin.kafka.client.actor.WorkerSupervisor
-import com.thiefspin.kafka.client.consumer.impl.AkkaStreamKafkaConsumer
 import com.thiefspin.kafka.client.consumer.{ConsumerTransformer, KafkaConsumerType, SimpleKafkaConsumer, StringTransformer}
 import com.thiefspin.kafka.client.message.{Consume, WorkerSupervisorMessage}
 import com.thiefspin.kafka.client.producer.{KafkaProducerClient, KafkaProducerType, SimpleKafkaProducerClient}
@@ -14,7 +13,7 @@ class AsyncKafkaClient(ref: ActorRef[WorkerSupervisorMessage]) {
     KafkaProducerClient(producerType, ref)
   }
 
-  def producerInstance(servers: String): KafkaProducerClient = {
+  def producerInstance(servers: String): SimpleKafkaProducerClient = {
     SimpleKafkaProducerClient(servers, ref)
   }
 

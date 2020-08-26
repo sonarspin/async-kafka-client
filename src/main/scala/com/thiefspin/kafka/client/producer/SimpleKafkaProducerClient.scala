@@ -22,7 +22,7 @@ object SimpleKafkaProducerClient {
 
   private def defaultProducer(servers: String): KafkaProducerType = ApacheKafkaProducer(None, Option(servers))(None).producer
 
-  def apply[B](servers: String, ref: ActorRef[WorkerSupervisorMessage]): KafkaProducerClient = {
+  def apply[B](servers: String, ref: ActorRef[WorkerSupervisorMessage]): SimpleKafkaProducerClient = {
     new SimpleKafkaProducerClient(defaultProducer(servers), ref)
   }
 }
