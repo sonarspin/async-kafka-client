@@ -3,11 +3,11 @@ package com.sonarspin.kafka.client.consumer
 import java.util.UUID
 
 import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.ConsumerSettings
+import com.sonarspin.kafka.client.consumer.impl.AkkaStreamKafkaConsumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
-import akka.actor.typed.scaladsl.adapter._
-import com.sonarspin.kafka.client.consumer.impl.AkkaStreamKafkaConsumer
 
 class SimpleKafkaConsumer(servers: String, consumerGroup: String)(implicit system: ActorSystem[_]) {
 

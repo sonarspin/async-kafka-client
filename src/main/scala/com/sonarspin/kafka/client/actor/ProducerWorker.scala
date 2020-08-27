@@ -3,7 +3,6 @@ package com.sonarspin.kafka.client.actor
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
 import com.sonarspin.kafka.client.message.{ProduceToTopic, ProducerWorkerMessage}
-import com.thiefspin.kafka.client.message.ProduceToTopic
 
 class ProducerWorker(context: ActorContext[ProducerWorkerMessage]) extends DefaultBehavior(context) {
 

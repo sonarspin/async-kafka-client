@@ -4,7 +4,6 @@ import akka.actor.typed.ActorSystem
 import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.scaladsl.Sink
 import com.sonarspin.kafka.client.consumer.{ConsumerTransformer, KafkaConsumerType}
-import com.thiefspin.kafka.client.consumer.ConsumerTransformer
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.{Failure, Success, Try}

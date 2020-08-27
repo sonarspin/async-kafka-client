@@ -4,7 +4,6 @@ import akka.actor.typed.ActorRef
 import com.sonarspin.kafka.client.json.DefaultJsonFormatter
 import com.sonarspin.kafka.client.message.{Produce, WorkerSupervisorMessage}
 import com.sonarspin.kafka.client.producer.impl.ApacheKafkaProducer
-import com.thiefspin.kafka.client.message.Produce
 import play.api.libs.json.Format
 
 class SimpleKafkaProducerClient(producerType: KafkaProducerType, ref: ActorRef[WorkerSupervisorMessage]) extends KafkaProducerClient(producerType, ref) {
