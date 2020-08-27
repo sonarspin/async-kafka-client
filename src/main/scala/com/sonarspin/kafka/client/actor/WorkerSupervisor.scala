@@ -3,9 +3,7 @@ package com.sonarspin.kafka.client.actor
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import com.sonarspin.kafka.client.consumer.{ConsumerTransformer, KafkaConsumerType}
-import com.sonarspin.kafka.client.message.{Consume, ConsumeFromTopic, ConsumerWorkerMessage, Produce, ProduceToTopic, ProducerWorkerMessage, WorkerSupervisorMessage}
-import com.thiefspin.kafka.client.consumer.ConsumerTransformer
-import com.thiefspin.kafka.client.message._
+import com.sonarspin.kafka.client.message._
 
 class WorkerSupervisor(context: ActorContext[WorkerSupervisorMessage]) extends DefaultBehavior(context) {
 

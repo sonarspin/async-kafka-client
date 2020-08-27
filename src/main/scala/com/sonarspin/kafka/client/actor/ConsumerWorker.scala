@@ -4,8 +4,6 @@ import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
 import com.sonarspin.kafka.client.consumer.{ConsumerTransformer, KafkaConsumerType}
 import com.sonarspin.kafka.client.message.{ConsumeFromTopic, ConsumerWorkerMessage}
-import com.thiefspin.kafka.client.consumer.ConsumerTransformer
-import com.thiefspin.kafka.client.message.ConsumeFromTopic
 
 class ConsumerWorker(topic: String, consumer: KafkaConsumerType, transformer: ConsumerTransformer, context: ActorContext[ConsumerWorkerMessage]) extends DefaultBehavior(context) {
 
