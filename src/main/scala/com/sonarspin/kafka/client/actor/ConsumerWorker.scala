@@ -9,7 +9,7 @@ class ConsumerWorker(topic: String, consumer: KafkaConsumerType, transformer: Co
 
   override def onMessage(behavior: ConsumerWorkerMessage): Behavior[ConsumerWorkerMessage] = {
     behavior match {
-      case ConsumeFromTopic() => consumer.consume(topic, transformer)
+      case ConsumeFromTopic() => consumer.consume(topic, transformer, this.context.self)
     }
     Behaviors.same
   }

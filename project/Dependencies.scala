@@ -3,20 +3,21 @@ import sbt._
 object Dependencies {
 
   lazy val akkaVersion = "2.6.8"
+  lazy val akkaKey = "com.typesafe.akka"
 
   lazy val scalaTestDependencies = Seq(
     "org.scalatest" %% "scalatest" % "3.1.1" % Test
   )
 
   lazy val akkaDependencies = Seq(
-    "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
-    "com.typesafe.akka" %% "akka-protobuf" % akkaVersion,
-    "com.typesafe.akka" %% "akka-stream" % akkaVersion
+    akkaKey %% "akka-actor-typed" % akkaVersion,
+    akkaKey %% "akka-protobuf" % akkaVersion,
+    akkaKey %% "akka-stream" % akkaVersion
   )
 
   lazy val kafkaDependencies: Seq[ModuleID] = Seq(
     "org.apache.kafka" % "kafka-streams" % "2.2.0",
-    "com.typesafe.akka" %% "akka-stream-kafka" % "2.0.4"
+    akkaKey %% "akka-stream-kafka" % "2.0.4"
   )
 
   lazy val jsonDependencies: Seq[ModuleID] = Seq(
